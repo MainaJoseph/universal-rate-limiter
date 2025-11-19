@@ -1,8 +1,43 @@
-# Next.js Edge Middleware Example
+# Next.js Edge Middleware/Proxy Example
 
-To test the Next.js Edge middleware example:
+This example supports both Next.js routing systems:
+- **Next.js 12-15**: Uses `middleware.ts`
+- **Next.js 16+**: Uses `proxy.ts`
 
-## Setup
+## Which File to Use?
+
+Check your Next.js version:
+```bash
+npm list next
+```
+
+- **Next.js 16+**: Use `proxy.ts` ⭐ (new routing system)
+- **Next.js 12-15**: Use `middleware.ts` (legacy)
+
+---
+
+## Setup for Next.js 16+ (proxy.ts)
+
+1. Create a new Next.js project (or use an existing one):
+```bash
+npx create-next-app@latest test-nextjs-app
+cd test-nextjs-app
+```
+
+2. Copy `proxy.ts` to your Next.js project root (same level as `app/` or `pages/`)
+
+3. Update the import path in `proxy.ts`:
+```typescript
+// Option A: Use npm link
+import { rateLimitEdge } from "universal-rate-limiter";
+
+// Option B: Use relative path to your built library
+import { rateLimitEdge } from "../../path/to/universal-rate-limiter/dist/index.mjs";
+```
+
+---
+
+## Setup for Next.js 12-15 (middleware.ts)
 
 1. Create a new Next.js project (or use an existing one):
 ```bash
@@ -20,6 +55,10 @@ import { rateLimitEdge } from "universal-rate-limiter";
 // Option B: Use relative path to your built library
 import { rateLimitEdge } from "../../path/to/universal-rate-limiter/dist/index.mjs";
 ```
+
+---
+
+## Common Steps (Both Versions)
 
 4. Create a test API route:
 
@@ -54,20 +93,40 @@ npm run dev
 curl http://localhost:3000/api/test
 curl http://localhost:3000/api/test
 curl http://localhost:3000/api/test
-# ... repeat until rate limited
+# ... repeat until rate limited (6th request will be blocked)
 ```
+
+---
 
 ## How It Works
 
-The middleware will:
+The middleware/proxy will:
 - Apply rate limiting to all routes matching `/api/:path*`
-- Allow 5 requests per 10 seconds
+- Allow 5 requests per 10 seconds (default)
 - Return a 429 status when rate limit is exceeded
 - Include `Retry-After` header with seconds to wait
 
-## Customization
+---
 
-See the commented examples in `middleware.ts` for:
-- IP-based rate limiting
-- Path-based rate limiting
-- Custom key generation logic
+## Customization Examples
+
+Both `middleware.ts` and `proxy.ts` include commented examples for:
+- ✅ IP-based rate limiting
+- ✅ Path-based rate limiting
+- ✅ Custom key generation logic
+- ✅ Different limits for different routes
+
+Simply uncomment the example you want to use!
+
+---
+
+## Key Differences: middleware.ts vs proxy.ts
+
+| Feature | middleware.ts (12-15) | proxy.ts (16+) |
+|---------|----------------------|----------------|
+| File name | `middleware.ts` | `proxy.ts` |
+| Export | `export const middleware` | `export const proxy` |
+| Config | `export const config` | `export const config` |
+| Functionality | Same | Same |
+
+**The rate limiting logic is identical** - only the file name and export name differ!

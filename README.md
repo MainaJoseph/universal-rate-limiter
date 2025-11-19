@@ -80,6 +80,23 @@ app.listen(3000);
 
 Protect your Next.js app at the edge:
 
+**For Next.js 16+ (proxy.ts):**
+```typescript
+// proxy.ts
+import { rateLimitEdge } from "universal-rate-limiter";
+
+export const proxy = rateLimitEdge({
+  key: "edge-limit",
+  max: 5,
+  window: "10s",
+});
+
+export const config = {
+  matcher: ["/api/:path*"],
+};
+```
+
+**For Next.js 12-15 (middleware.ts):**
 ```typescript
 // middleware.ts
 import { rateLimitEdge } from "universal-rate-limiter";
