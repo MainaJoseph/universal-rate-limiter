@@ -1,91 +1,87 @@
+<div align="center">
 
+# 🌐 Universal Rate Limiter
 
-````markdown
-# 🌐 Universal Rate Limiter  
-### A lightweight, zero-dependency rate limiter that works **everywhere** — frontend, backend, serverless, and edge.
+### A lightweight, zero-dependency rate limiter that works everywhere
 
-`universal-rate-limiter` is a flexible, modern, and fully TypeScript rate-limiting utility designed to run **in any JavaScript environment**. Whether you're building a backend API, a frontend app, a serverless function, or a browser extension — this library gives you a fast, predictable, and dependency-free way to prevent excessive requests or actions.
+[![npm version](https://img.shields.io/npm/v/universal-rate-limiter.svg)](https://www.npmjs.com/package/universal-rate-limiter)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue)](https://www.typescriptlang.org/)
 
-Most rate limiters only work on backend frameworks or require Redis, databases, or specific runtimes.  
-**This one works in every environment — with zero dependencies.**
+**Frontend • Backend • Serverless • Edge**
 
----
+[Installation](#installation) • [Quick Start](#quick-start) • [API Reference](#api-reference) • [Examples](#examples)
 
-# Universal Rate Limiter
-
-### A lightweight, TypeScript-first rate limiter for Frontend + Backend
-
-`universal-rate-limiter` is a flexible, zero-dependency rate limiter that works **everywhere**:
-
-- **Browser** (localStorage or memory)  
-- **Node.js**  
-- **Express**  
-- **Next.js API Routes**  
-- **Next.js Edge Middleware**  
-- **React (via hook)**  
-- **Serverless environments** (Vercel, AWS Lambda, Cloudflare)
-
-This library was created to solve a huge gap:
-
-> Most rate limiters only work on the backend — this one works in _every environment_.
+</div>
 
 ---
 
-## 🚀 Features
+## Overview
 
-✔ Works in **frontend + backend**  
-✔ Built-in storage adapters: memory & localStorage  
-✔ Extendable (custom storage adapters supported)  
-✔ Next.js Middleware support (Edge-compatible)  
-✔ Express middleware included  
-✔ React hook for UI components  
-✔ 0 dependencies  
-✔ TypeScript-first  
-✔ Fully tree-shakeable  
+`universal-rate-limiter` is a modern, TypeScript-first rate limiting library designed to run in **any JavaScript environment**. Unlike traditional rate limiters that require Redis, databases, or specific runtimes, this library works seamlessly across all platforms with zero dependencies.
+
+### Why Universal Rate Limiter?
+
+- 🌍 **Truly Universal** — Works in Browser, Node.js, Express, Next.js, Edge, and Serverless
+- 🪶 **Zero Dependencies** — No external packages required
+- 🔌 **Pluggable Storage** — Built-in memory and localStorage adapters, easily extensible
+- ⚡ **Edge Compatible** — Optimized for Next.js Edge Middleware and serverless environments
+- 🎣 **React Hook** — First-class React support for client-side rate limiting
+- 📦 **Tree-Shakeable** — Only import what you need
+- 🔒 **TypeScript-First** — Fully typed for excellent DX
 
 ---
 
-## 📦 Installation
+## Installation
 
 ```bash
 npm install universal-rate-limiter
+```
 
-# or
-
+```bash
 yarn add universal-rate-limiter
+```
 
-# or
-
+```bash
 pnpm add universal-rate-limiter
-````
+```
 
 ---
 
-## Usage Examples
+## Quick Start
 
 ### Express Middleware
+
+Protect your API endpoints with automatic rate limiting:
 
 ```typescript
 import express from "express";
 import { rateLimitExpress } from "universal-rate-limiter";
 
 const app = express();
+
+// Apply rate limiting to all routes
 app.use(
   rateLimitExpress({
     key: "api-limit",
-    max: 10,
-    window: "1m",
+    max: 10,              // 10 requests
+    window: "1m",         // per minute
   })
 );
 
 app.get("/api/data", (req, res) => {
   res.json({ message: "Success" });
 });
+
+app.listen(3000);
 ```
 
 ### Next.js Edge Middleware
 
+Protect your Next.js app at the edge:
+
 ```typescript
+// middleware.ts
 import { rateLimitEdge } from "universal-rate-limiter";
 
 export const middleware = rateLimitEdge({
@@ -101,112 +97,277 @@ export const config = {
 
 ### React Hook
 
+Rate limit user actions in your React components:
+
 ```tsx
 import { useRateLimit } from "universal-rate-limiter";
 
-export function MyComponent() {
-  const { allowed, remaining, attempt } = useRateLimit("button-click", {
+export function SubmitButton() {
+  const { allowed, remaining, attempt } = useRateLimit("submit-form", {
     max: 3,
     window: "1m",
   });
 
-  const handleClick = async () => {
+  const handleSubmit = async () => {
     const isAllowed = await attempt();
+
     if (isAllowed) {
-      console.log("Action allowed!");
+      // Proceed with form submission
+      console.log("Form submitted!");
     } else {
-      console.log("Rate limit exceeded");
+      // Show error message
+      console.log("Too many submissions. Please wait.");
     }
   };
 
   return (
-    <div>
-      <button onClick={handleClick} disabled={!allowed}>
-        Click me ({remaining} remaining)
-      </button>
-    </div>
+    <button onClick={handleSubmit} disabled={!allowed}>
+      Submit ({remaining} remaining)
+    </button>
   );
 }
 ```
 
-### Custom Storage
+---
+
+## Examples
+
+### Custom Storage Adapter
+
+Use localStorage for persistent client-side rate limiting:
 
 ```typescript
-import {
-  createRateLimiter,
-  LocalStorageAdapter,
-} from "universal-rate-limiter";
+import { createRateLimiter, LocalStorageAdapter } from "universal-rate-limiter";
 
 const limiter = createRateLimiter({
-  key: "custom-limit",
+  key: "download-limit",
   max: 5,
   window: "1h",
   storage: new LocalStorageAdapter("my-app"),
 });
 
 const result = await limiter.check();
-console.log(result); // { allowed: true, remaining: 4, retryAfter: 0 }
+
+if (result.allowed) {
+  console.log(`Download started. ${result.remaining} downloads remaining.`);
+} else {
+  console.log(`Rate limit exceeded. Retry in ${result.retryAfter}ms`);
+}
+```
+
+### Dynamic Keys (Per-User Limiting)
+
+Rate limit based on user ID or IP address:
+
+```typescript
+import express from "express";
+import { createRateLimiter } from "universal-rate-limiter";
+
+const app = express();
+
+app.use(async (req, res, next) => {
+  const limiter = createRateLimiter({
+    key: () => req.ip || "unknown",  // Dynamic key based on IP
+    max: 100,
+    window: "15m",
+  });
+
+  const result = await limiter.check();
+
+  if (!result.allowed) {
+    return res.status(429).json({
+      error: "Too many requests",
+      retryAfter: result.retryAfter,
+    });
+  }
+
+  next();
+});
+```
+
+### Browser-Only Rate Limiting
+
+Prevent spam clicks in vanilla JavaScript:
+
+```typescript
+import { createRateLimiter, LocalStorageAdapter } from "universal-rate-limiter";
+
+const limiter = createRateLimiter({
+  key: "button-click",
+  max: 10,
+  window: "30s",
+  storage: new LocalStorageAdapter(),
+});
+
+document.querySelector("#submit-btn").addEventListener("click", async () => {
+  const result = await limiter.check();
+
+  if (result.allowed) {
+    // Process the click
+    console.log("Action performed");
+  } else {
+    alert(`Please wait ${Math.ceil(result.retryAfter / 1000)} seconds`);
+  }
+});
 ```
 
 ---
 
 ## API Reference
 
-### `createRateLimiter(options: RateLimitOptions)`
+### `createRateLimiter(options)`
 
 Creates a rate limiter instance.
 
-**Options:**
+#### Options
 
-* `key` (string | function): Unique identifier for the limit. Can be a function for dynamic keys.
-* `max` (number): Maximum requests allowed in the window.
-* `window` (string | number): Time window (e.g., `"1m"`, `"10s"`, or milliseconds).
-* `storage` (optional): Storage adapter. Defaults to MemoryStorage.
+| Option    | Type                      | Required | Description                                                  |
+|-----------|---------------------------|----------|--------------------------------------------------------------|
+| `key`     | `string \| () => string`  | Yes      | Unique identifier for the rate limit. Can be a function for dynamic keys. |
+| `max`     | `number`                  | Yes      | Maximum number of requests allowed within the time window.   |
+| `window`  | `string \| number`        | Yes      | Time window (e.g., `"1m"`, `"10s"`, `3600000`).             |
+| `storage` | `StorageAdapter`          | No       | Storage adapter. Defaults to `MemoryStorage`.                |
 
-**Returns:**
-A rate limiter instance with an async `check()` method.
+#### Returns
 
-### `check() -> Promise<RateLimitResult>`
+Returns an object with a `check()` method:
 
-Returns:
-
-```ts
+```typescript
 {
-  allowed: boolean;
-  remaining: number;
-  retryAfter: number; // milliseconds
+  check(): Promise<RateLimitResult>
 }
+```
+
+### `check()`
+
+Checks if a request is allowed and updates the rate limit state.
+
+#### Returns
+
+```typescript
+{
+  allowed: boolean;      // Whether the request is allowed
+  remaining: number;     // Number of requests remaining in the window
+  retryAfter: number;    // Milliseconds until the limit resets (0 if allowed)
+}
+```
+
+### Window Format
+
+Supports human-readable time formats:
+
+| Format  | Duration      |
+|---------|---------------|
+| `"10s"` | 10 seconds    |
+| `"5m"`  | 5 minutes     |
+| `"1h"`  | 1 hour        |
+| `"1d"`  | 1 day         |
+| `5000`  | 5000ms (raw)  |
+
+### Built-in Storage Adapters
+
+#### `MemoryStorage`
+
+In-memory storage (default). Data is lost on server restart.
+
+```typescript
+import { createRateLimiter, MemoryStorage } from "universal-rate-limiter";
+
+const limiter = createRateLimiter({
+  key: "api-limit",
+  max: 10,
+  window: "1m",
+  storage: new MemoryStorage(),  // Default, can be omitted
+});
+```
+
+#### `LocalStorageAdapter`
+
+Browser localStorage storage. Persists across page reloads.
+
+```typescript
+import { createRateLimiter, LocalStorageAdapter } from "universal-rate-limiter";
+
+const limiter = createRateLimiter({
+  key: "user-action",
+  max: 5,
+  window: "1h",
+  storage: new LocalStorageAdapter("my-app-prefix"),  // Optional prefix
+});
 ```
 
 ---
 
-## Window Format
+## Environment Compatibility
 
-Use human-readable window strings:
+| Environment           | Memory Storage | LocalStorage | Custom Storage |
+|-----------------------|:--------------:|:------------:|:--------------:|
+| Browser               | ✅             | ✅           | ✅             |
+| Node.js               | ✅             | ❌           | ✅             |
+| Express               | ✅             | ❌           | ✅             |
+| Next.js API Routes    | ✅             | ❌           | ✅             |
+| Next.js Edge Middleware | ✅           | ❌           | ✅             |
+| Serverless (Vercel, Lambda) | ✅      | ❌           | ✅             |
+| React Client          | ✅             | ✅           | ✅             |
 
-* `"10s"` – 10 seconds
-* `"5m"` – 5 minutes
-* `"1h"` – 1 hour
-* `"1d"` – 1 day
-* `5000` – milliseconds
+---
+
+## Custom Storage Adapters
+
+Implement your own storage adapter for Redis, databases, or any other backend:
+
+```typescript
+class RedisAdapter {
+  constructor(private redisClient: Redis) {}
+
+  async get(key: string): Promise<number[]> {
+    const data = await this.redisClient.get(key);
+    return data ? JSON.parse(data) : [];
+  }
+
+  async set(key: string, timestamps: number[]): Promise<void> {
+    await this.redisClient.set(key, JSON.stringify(timestamps), "EX", 3600);
+  }
+}
+
+const limiter = createRateLimiter({
+  key: "api-limit",
+  max: 100,
+  window: "1h",
+  storage: new RedisAdapter(redisClient),
+});
+```
+
+---
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ---
 
 ## License
 
-MIT
-
-```
+MIT © [Your Name](https://github.com/YOUR_USERNAME)
 
 ---
 
-If you want, I can also generate:
+## Support
 
-🔥 **Badges section** (npm version, downloads, TypeScript, bundle size)  
-🔥 **Changelog**  
-🔥 **Contributing guide**  
-🔥 **More advanced examples**  
-🔥 **Full API table**
+- 📫 [Report a bug](https://github.com/YOUR_USERNAME/universal-rate-limiter/issues)
+- 💡 [Request a feature](https://github.com/YOUR_USERNAME/universal-rate-limiter/issues)
+- ⭐ Star this repo if you find it useful!
 
-Just tell me **"add badges"** or **"add changelog"** etc.
-```
+---
+
+<div align="center">
+
+**Made with ❤️ for the JavaScript community**
+
+</div>
