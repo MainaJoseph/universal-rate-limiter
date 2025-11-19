@@ -38,8 +38,8 @@
     "prepublishOnly": "npm run build",
     "test:express": "npm run build && node examples/express/server.js",
     "test:vanilla": "npm run build && echo 'Open examples/vanilla/index.html in your browser'",
-    "ci:check-build": "node -e \"const fs=require('fs');const files=['dist/index.js','dist/index.mjs','dist/index.d.ts','dist/index.d.mts'];let missing=false;files.forEach(f=>{if(!fs.existsSync(f)){console.error('Missing: '+f);missing=true}});if(missing)process.exit(1);console.log('All build outputs present')\"",
-    "ci:check-size": "node -e \"const fs=require('fs');const path=require('path');console.log('Package size analysis:');const distPath='dist';if(fs.existsSync(distPath)){fs.readdirSync(distPath).forEach(f=>{const stats=fs.statSync(path.join(distPath,f));const sizeKB=(stats.size/1024).toFixed(2);console.log(f+': '+sizeKB+' KB')});console.log('Size check completed')}else{console.log('dist/ not found')}\""
+    "ci:check-build": "node scripts/check-build.js",
+    "ci:check-size": "node scripts/check-size.js"
   },
   "devDependencies": {
     "@types/react": "^19.2.6",
