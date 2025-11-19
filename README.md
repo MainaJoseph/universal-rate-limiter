@@ -371,15 +371,16 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-MIT © [Your Name](https://github.com/YOUR_USERNAME)
+MIT © [Joseph Maina](https://github.com/MainaJoseph)
 
 ---
 
 ## Support
 
-- 📫 [Report a bug](https://github.com/YOUR_USERNAME/universal-rate-limiter/issues)
-- 💡 [Request a feature](https://github.com/YOUR_USERNAME/universal-rate-limiter/issues)
+- 📫 [Report a bug](https://github.com/MainaJoseph/universal-rate-limiter/issues)
+- 💡 [Request a feature](https://github.com/MainaJoseph/universal-rate-limiter/issues)
 - ⭐ Star this repo if you find it useful!
+- 🔗 [View on GitHub](https://github.com/MainaJoseph/universal-rate-limiter)
 
 ---
 

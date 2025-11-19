@@ -1,0 +1,33 @@
+# Source files (only publish dist/)
+src/
+tsconfig.json
+tsup.config.ts
+
+# Examples and tests
+examples/
+test-server.js
+test.js
+TESTING.md
+
+# Claude Code settings
+.claude/
+
+# Development files
+node_modules/
+.git/
+.gitignore
+*.log
+*.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Documentation (keep README.md and CLAUDE.md)
+# We keep these for npm package page

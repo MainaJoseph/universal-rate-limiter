@@ -15,14 +15,23 @@
     "backend",
     "middleware",
     "browser",
-    "serverless"
+    "serverless",
+    "edge",
+    "react",
+    "rate-limiting",
+    "api",
+    "throttle"
   ],
-  "author": "Your Name",
+  "author": "Joseph Maina <mainajm254@gmail.com> (https://github.com/MainaJoseph)",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/YOUR_USERNAME/universal-rate-limiter.git"
+    "url": "https://github.com/MainaJoseph/universal-rate-limiter.git"
   },
+  "bugs": {
+    "url": "https://github.com/MainaJoseph/universal-rate-limiter/issues"
+  },
+  "homepage": "https://github.com/MainaJoseph/universal-rate-limiter#readme",
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts --clean",
     "dev": "tsup src/index.ts --watch",
