@@ -2,11 +2,22 @@
 import { parseWindow } from "./time";
 import { MemoryStorage } from "./storage/memory";
 
+export interface StorageAdapter {
+  get(key: string): Promise<number[]>;
+  set(key: string, timestamps: number[]): Promise<void>;
+}
+
+export interface RateLimitResult {
+  allowed: boolean;
+  remaining: number;
+  retryAfter: number;
+}
+
 export interface RateLimitOptions {
   key: string | (() => string);
   max: number;
   window: string | number;
-  storage?: any;
+  storage?: StorageAdapter;
 }
 
 export function createRateLimiter(options: RateLimitOptions) {
@@ -15,7 +26,7 @@ export function createRateLimiter(options: RateLimitOptions) {
   const storage = options.storage || new MemoryStorage();
 
   return {
-    async check() {
+    async check(): Promise<RateLimitResult> {
       const id = typeof key === "function" ? key() : key;
       const now = Date.now();
 

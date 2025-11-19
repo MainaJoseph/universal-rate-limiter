@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Universal Rate Limiter - Vanilla JS Test</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+    }
+    .test-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 4px;
+      border-left: 4px solid #007bff;
+    }
+    .test-section h3 {
+      margin-top: 0;
+      color: #007bff;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .status {
+      margin-top: 15px;
+      padding: 15px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    .success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    .info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+    .stats {
+      display: inline-block;
+      margin-left: 10px;
+      padding: 4px 8px;
+      background: #e7f3ff;
+      border-radius: 3px;
+      font-size: 14px;
+    }
+    code {
+      background: #f4f4f4;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌐 Universal Rate Limiter</h1>
+    <p class="subtitle">Vanilla JavaScript Browser Test</p>
+
+    <div class="test-section">
+      <h3>Test 1: Memory Storage (In-Memory)</h3>
+      <p>Limit: <code>5 clicks per 30 seconds</code></p>
+      <button id="btn-memory">Click Me (Memory Storage)</button>
+      <span id="stats-memory" class="stats">Remaining: 5</span>
+      <div id="status-memory"></div>
+    </div>
+
+    <div class="test-section">
+      <h3>Test 2: LocalStorage (Persistent)</h3>
+      <p>Limit: <code>3 clicks per 1 minute</code> - Persists across page reloads!</p>
+      <button id="btn-localstorage">Click Me (LocalStorage)</button>
+      <span id="stats-localstorage" class="stats">Remaining: 3</span>
+      <button id="btn-clear" style="background: #dc3545;">Clear LocalStorage</button>
+      <div id="status-localstorage"></div>
+    </div>
+
+    <div class="test-section">
+      <h3>Instructions</h3>
+      <ul>
+        <li>Click the buttons multiple times to test rate limiting</li>
+        <li>Watch the "Remaining" counter decrease with each click</li>
+        <li>When limit is exceeded, you'll see an error message with retry time</li>
+        <li>LocalStorage example persists even after page reload (try it!)</li>
+        <li>Open DevTools Console to see detailed logs</li>
+      </ul>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createRateLimiter, MemoryStorage, LocalStorageAdapter } from '../../dist/index.mjs';
+
+    // Test 1: Memory Storage
+    const memoryLimiter = createRateLimiter({
+      key: "button-click-memory",
+      max: 5,
+      window: "30s",
+      storage: new MemoryStorage(),
+    });
+
+    document.getElementById("btn-memory").addEventListener("click", async () => {
+      const result = await memoryLimiter.check();
+      const statusDiv = document.getElementById("status-memory");
+      const statsSpan = document.getElementById("stats-memory");
+
+      console.log("Memory Storage Result:", result);
+
+      if (result.allowed) {
+        statusDiv.className = "status success";
+        statusDiv.textContent = `✓ Action allowed! You have ${result.remaining} attempts remaining.`;
+        statsSpan.textContent = `Remaining: ${result.remaining}`;
+      } else {
+        statusDiv.className = "status error";
+        const retrySeconds = Math.ceil(result.retryAfter / 1000);
+        statusDiv.textContent = `✗ Rate limit exceeded! Please wait ${retrySeconds} seconds before trying again.`;
+        statsSpan.textContent = `Remaining: 0 (blocked)`;
+      }
+    });
+
+    // Test 2: LocalStorage
+    const localStorageLimiter = createRateLimiter({
+      key: "button-click-local",
+      max: 3,
+      window: "1m",
+      storage: new LocalStorageAdapter("test-app"),
+    });
+
+    document.getElementById("btn-localstorage").addEventListener("click", async () => {
+      const result = await localStorageLimiter.check();
+      const statusDiv = document.getElementById("status-localstorage");
+      const statsSpan = document.getElementById("stats-localstorage");
+
+      console.log("LocalStorage Result:", result);
+
+      if (result.allowed) {
+        statusDiv.className = "status success";
+        statusDiv.textContent = `✓ Action allowed! You have ${result.remaining} attempts remaining. (Persists across reloads!)`;
+        statsSpan.textContent = `Remaining: ${result.remaining}`;
+      } else {
+        statusDiv.className = "status error";
+        const retrySeconds = Math.ceil(result.retryAfter / 1000);
+        statusDiv.textContent = `✗ Rate limit exceeded! Please wait ${retrySeconds} seconds. (Try reloading the page - it persists!)`;
+        statsSpan.textContent = `Remaining: 0 (blocked)`;
+      }
+    });
+
+    // Clear LocalStorage button
+    document.getElementById("btn-clear").addEventListener("click", () => {
+      localStorage.removeItem("test-app:button-click-local");
+      const statusDiv = document.getElementById("status-localstorage");
+      const statsSpan = document.getElementById("stats-localstorage");
+      statusDiv.className = "status info";
+      statusDiv.textContent = "✓ LocalStorage cleared! Rate limit reset.";
+      statsSpan.textContent = "Remaining: 3";
+      console.log("LocalStorage cleared!");
+    });
+
+    console.log("🚀 Rate limiter examples loaded!");
+    console.log("Try clicking the buttons to see rate limiting in action.");
+  </script>
+</body>
+</html>
