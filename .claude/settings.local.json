@@ -10,7 +10,10 @@
       "Bash(npm pack:*)",
       "Bash(npm run ci:check-build:*)",
       "Bash(npm run ci:check-size:*)",
-      "Bash(nul)"
+      "Bash(nul)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
