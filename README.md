@@ -10,6 +10,8 @@
 
 **Frontend • Backend • Serverless • Edge**
 
+**[📖 Documentation Website](https://universal-rate-limiter.azuritek.com)**
+
 [Installation](#installation) • [Quick Start](#quick-start) • [API Reference](#api-reference) • [Examples](#examples)
 
 </div>
@@ -22,7 +24,7 @@
 
 ### Why Universal Rate Limiter?
 
-- 🌍 **Truly Universal** — Works in Browser, Node.js, Express, Next.js, Edge, and Serverless
+- 🌍 **Truly Universal** — Works in Browser, Node.js, Bun, Express, Next.js, Edge, and Serverless
 - 🪶 **Zero Dependencies** — No external packages required
 - 🔌 **Pluggable Storage** — Built-in memory and localStorage adapters, easily extensible
 - ⚡ **Edge Compatible** — Optimized for Next.js Edge Middleware and serverless environments
@@ -44,6 +46,10 @@ yarn add universal-rate-limiter
 
 ```bash
 pnpm add universal-rate-limiter
+```
+
+```bash
+bun add universal-rate-limiter
 ```
 
 ---
@@ -321,6 +327,7 @@ const limiter = createRateLimiter({
 |-----------------------|:--------------:|:------------:|:--------------:|
 | Browser               | ✅             | ✅           | ✅             |
 | Node.js               | ✅             | ❌           | ✅             |
+| Bun                   | ✅             | ❌           | ✅             |
 | Express               | ✅             | ❌           | ✅             |
 | Next.js API Routes    | ✅             | ❌           | ✅             |
 | Next.js Edge Middleware | ✅           | ❌           | ✅             |

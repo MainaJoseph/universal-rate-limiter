@@ -1,7 +1,7 @@
 {
   "name": "universal-rate-limiter",
-  "version": "1.0.1",
-  "description": "A lightweight universal rate limiter for frontend and backend — works in Browser, Node.js, Express, Next.js Middleware, and React.",
+  "version": "1.0.2",
+  "description": "A lightweight universal rate limiter for frontend and backend — works in Browser, Node.js, Bun, Express, Next.js Middleware, and React.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -10,6 +10,7 @@
     "ratelimit",
     "nextjs",
     "express",
+    "bun",
     "typescript",
     "frontend",
     "backend",
