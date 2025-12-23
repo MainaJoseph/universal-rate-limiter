@@ -1,6 +1,6 @@
 {
   "name": "universal-rate-limiter",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A lightweight universal rate limiter for frontend and backend — works in Browser, Node.js, Bun, Express, Next.js Middleware, and React.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -32,7 +32,7 @@
   "bugs": {
     "url": "https://github.com/MainaJoseph/universal-rate-limiter/issues"
   },
-  "homepage": "https://github.com/MainaJoseph/universal-rate-limiter#readme",
+  "homepage": "https://universal-rate-limiter.azuritek.com",
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
